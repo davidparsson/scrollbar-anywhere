@@ -52,6 +52,11 @@ function save() {
 
   o.cursor = $('cursor').checked
   o.notext = $('notext').checked
+  o.nolinks = $('nolinks').checked
+  o.nobuttons = $('nobuttons').checked
+  o.nolabels = $('nolabels').checked
+  o.noimages = $('noimages').checked
+  o.noembeds = $('noembeds').checked
   o.grab_and_drag = $('grab_and_drag').checked
   o.debug = $('debug').checked
 
@@ -74,13 +79,36 @@ function load() {
 
   $('cursor').checked = (o.cursor == "true")
   $('notext').checked = (o.notext == "true")
+  $('nolinks').checked = (o.nolinks == "true")
+  $('nobuttons').checked = (o.nobuttons == "true")
+  $('nolabels').checked = (o.nolabels == "true")
+  $('noimages').checked = (o.noimages == "true")
+  $('noembeds').checked = (o.noembeds == "true")
   $('grab_and_drag').checked = (o.grab_and_drag == "true")
   $('debug').checked = (o.debug == "true")
+
+  // Should only need to make sure we disable these on page [re]load.
+  $('nolinks').disabled = (o.notext == "true")
+  $('nobuttons').disabled = (o.notext == "true")
+  $('nolabels').disabled = (o.notext == "true")
+  $('noembeds').disabled = (o.noimages == "true")
 }
 
 var updateTimeoutId
 
 function onUpdate(ev) {
+  if (ev.target == $('notext')) {
+    ['nolinks', 'nobuttons', 'nolabels'].forEach(function(id) {
+      $(id).checked = ($('notext').checked === true)
+      $(id).disabled = ($('notext').checked === true)
+    })
+  }
+
+  if (ev.target == $('noimages')) {
+    $('noembeds').checked = ($('noimages').checked === true)
+    $('noembeds').disabled = ($('noimages').checked === true)
+  }
+
   if (updateTimeoutId != null) clearTimeout(updateTimeoutId)
   updateTimeoutId = setTimeout(save,200)
 
@@ -92,7 +120,16 @@ function onUpdate(ev) {
 
 document.addEventListener('DOMContentLoaded', function(ev) {
   load();
-  ['button','cursor','notext','debug', 'grab_and_drag'].forEach(function(id) {
+  ['button',
+  'cursor',
+  'notext',
+  'nolinks',
+  'nobuttons',
+  'nolabels',
+  'noimages',
+  'noembeds',
+  'debug',
+  'grab_and_drag'].forEach(function(id) {
     $(id).addEventListener('change',onUpdate,false)
   })
 
