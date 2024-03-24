@@ -86,12 +86,12 @@
             <table style="border: none">
             <tr>
               <td style="width:100px">
-                  <input id="key_shift" type="checkbox" /> <label for="key_shift">Shift</label></td>
-              <td><input id="key_ctrl"  type="checkbox" /> <label for="key_ctrl">Ctrl</label></td>
+                  <input id="key_shift" type="checkbox" /><label for="key_shift">Shift</label></td>
+              <td><input id="key_ctrl"  type="checkbox" /><label for="key_ctrl">Ctrl</label></td>
             </tr>
             <tr>
-              <td><input id="key_alt"   type="checkbox" /> <label for="key_alt">Alt</label></td>
-              <td><input id="key_meta"  type="checkbox" /> <label for="key_meta">Meta/Win/Tux</label></td>
+              <td><input id="key_alt"   type="checkbox" /><label for="key_alt">Alt</label></td>
+              <td><input id="key_meta"  type="checkbox" /><label for="key_meta">Meta/Win/Tux</label></td>
             </tr>
             </table>
             <div class="tip">Tip: any unchecked keys will <strong>disable</strong> dragging when held down</div>
@@ -99,17 +99,42 @@
         </tr>
 
         <tr>
-          <td></td>
+          <td class="setting_description">
+            <h2>Disabled Elements</h2>
+            Which elements will you <strong>disable</strong> dragging on?
+          </td>
           <td>
-            <label for="notext"><input id="notext" type="checkbox"/> Don't drag when clicking on text</label><br/>
+            <table style="border: none">
+              <tr>
+                <td>
+                  <input id="notext" type="checkbox" /><label for="notext">Text</label>
+                  <table style="border: none">
+                    <tr><td><input id="nolinks" type="checkbox" style="margin-left: 20px" /><label for="nolinks">Links</label></td></tr>
+                    <tr><td><input id="nobuttons" type="checkbox" style="margin-left: 20px" /><label for="nobuttons">Buttons</label></td></tr>
+                    <tr><td><input id="nolabels" type="checkbox" style="margin-left: 20px" /><label for="nolabels">Labels</label></td></tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <input id="noimages" type="checkbox" /><label for="noimages">Images</label>
+                  <table style="border: none">
+                    <tr><td><input id="noembeds" type="checkbox" style="margin-left: 20px" /><label for="noembeds">Embedded Content</label></td></tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
 
         <tr>
-          <td></td>
+          <td class="setting_description">
+            <h2>Cursor</h2>
+            Cursor appearance while dragging.
+          </td>
           <td>
-            <label for="cursor"><input id="cursor" type="checkbox"/> Change cursor while dragging</label><br/>
-            <div class="tip">Try unchecking this if you notice any delays</div>
+            <label for="cursor"><input id="cursor" type="checkbox"/>Change cursor while dragging</label><br/>
+            <div class="tip">Tip: try unchecking this if you notice any delays</div>
           </td>
         </tr>
 
@@ -119,7 +144,7 @@
             Grab-and-drag style scrolling will be enabled instead of the scrollbar anywhere style.
           </td>
           <td>
-            <label for="grab_and_drag"><input id="grab_and_drag" type="checkbox"/> Use Grab-and-drag style scrolling</label><br/>
+            <label for="grab_and_drag"><input id="grab_and_drag" type="checkbox"/>Use Grab-and-drag style scrolling</label><br/>
           </td>
         </tr>
 
@@ -166,8 +191,13 @@
         </tr>
 
         <tr>
-          <td></td>
-          <td><input id="debug" type="checkbox" /> <label for="debug">show debug noise in console</label></td>
+          <td class="setting_description">
+            <h2>Developer</h2>
+            Development options.
+          </td>
+          <td>
+            <input id="debug" type="checkbox" /><label for="debug">Show debug noise in console</label>
+          </td>
         </tr>
 
         <tr>
