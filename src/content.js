@@ -3,7 +3,7 @@ var ScrollbarAnywhere = (function () {
 
   var options = { debug: true, enabled: false }
 
-  var port = chrome.extension.connect()
+  var port = chrome.runtime.connect()
   port.onMessage.addListener(function (msg) {
     if (msg.saveOptions) {
       options = msg.saveOptions

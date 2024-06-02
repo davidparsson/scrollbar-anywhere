@@ -28,7 +28,7 @@ function loadOptions() {
 
 var clients = {}
 
-chrome.extension.onConnect.addListener(function (port) {
+chrome.runtime.onConnect.addListener(function (port) {
   port.postMessage({ saveOptions: localStorage })
   var id = port.sender.tab.id + ':' + port.sender.frameId
   console.log('connect: ' + id)
