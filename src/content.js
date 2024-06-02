@@ -1,44 +1,48 @@
-
-var ScrollbarAnywhere = (function() {
-
+var ScrollbarAnywhere = (function () {
   // === Options ===
 
-  var options = {debug:true, enabled:false}
+  var options = { debug: true, enabled: false }
 
   var port = chrome.extension.connect()
-  port.onMessage.addListener(function(msg) {
+  port.onMessage.addListener(function (msg) {
     if (msg.saveOptions) {
       options = msg.saveOptions
-      options.cursor = (options.cursor == "true")
-      options.notext = (options.notext == "true")
-      options.grab_and_drag = (options.grab_and_drag == "true")
-      options.debug = (options.debug == "true")
+      options.cursor = options.cursor == 'true'
+      options.notext = options.notext == 'true'
+      options.grab_and_drag = options.grab_and_drag == 'true'
+      options.debug = options.debug == 'true'
       options.enabled = isEnabled(options.blacklist)
-      options.browser_enabled = (options.browser_enabled == "true")
-      debug("saveOptions: ",options)
+      options.browser_enabled = options.browser_enabled == 'true'
+      debug('saveOptions: ', options)
     }
   })
 
   function isEnabled(blacklist) {
     if (!blacklist) {
-      return true;
+      return true
     }
-    var blacklistedHosts = blacklist.split('\n');
-    var hostname = document.location.hostname;
+    var blacklistedHosts = blacklist.split('\n')
+    var hostname = document.location.hostname
     for (var i = blacklistedHosts.length - 1; i >= 0; i--) {
-      var blacklistedHost = blacklistedHosts[i].trim();
-      if (hostname === blacklistedHost || hostname.endsWith('.' + blacklistedHost)) {
-        return false;
+      var blacklistedHost = blacklistedHosts[i].trim()
+      if (
+        hostname === blacklistedHost ||
+        hostname.endsWith('.' + blacklistedHost)
+      ) {
+        return false
       }
     }
-    return true;
+    return true
   }
 
   // === Debuggering ===
 
   function debug() {
     if (options.debug) {
-      console.debug.apply(console,["SA:"].concat(Array.prototype.slice.call(arguments)))
+      console.debug.apply(
+        console,
+        ['SA:'].concat(Array.prototype.slice.call(arguments)),
+      )
     }
   }
 
@@ -48,17 +52,16 @@ var ScrollbarAnywhere = (function() {
   function debugCont() {
     if (options.debug) {
       var now = Date.now()
-      if (lastDebug+DEBUG_INTERVAL <= now) {
+      if (lastDebug + DEBUG_INTERVAL <= now) {
         lastDebug = now
-        debug.apply(this,arguments)
+        debug.apply(this, arguments)
       }
     }
   }
 
-
   // === Util ===
 
-  String.prototype.padLeft = function(n,c) {
+  String.prototype.padLeft = function (n, c) {
     if (!c) c = ' '
     var a = []
     for (var i = this.length; i < n; i++) a.push(c)
@@ -71,44 +74,64 @@ var ScrollbarAnywhere = (function() {
   }
 
   function formatVector(v) {
-    return "["+formatCoord(v[0])+","+formatCoord(v[1])+"]"
+    return '[' + formatCoord(v[0]) + ',' + formatCoord(v[1]) + ']'
   }
-
 
   // === Vector math ===
 
-  function vadd(a,b)   { return [a[0]+b[0], a[1]+b[1]] }
-  function vsub(a,b)   { return [a[0]-b[0], a[1]-b[1]] }
-  function vmul(s,v)   { return [s*v[0], s*v[1]] }
-  function vdiv(s,v)   { return [v[0]/s, v[1]/s] }
-  function vmag2(v)    { return v[0]*v[0] + v[1]*v[1] }
-  function vmag(v)     { return Math.sqrt(v[0]*v[0] + v[1]*v[1]) }
-  function vunit(v)    { return vdiv(vmag(v),v) }
-
+  function vadd(a, b) {
+    return [a[0] + b[0], a[1] + b[1]]
+  }
+  function vsub(a, b) {
+    return [a[0] - b[0], a[1] - b[1]]
+  }
+  function vmul(s, v) {
+    return [s * v[0], s * v[1]]
+  }
+  function vdiv(s, v) {
+    return [v[0] / s, v[1] / s]
+  }
+  function vmag2(v) {
+    return v[0] * v[0] + v[1] * v[1]
+  }
+  function vmag(v) {
+    return Math.sqrt(v[0] * v[0] + v[1] * v[1])
+  }
+  function vunit(v) {
+    return vdiv(vmag(v), v)
+  }
 
   // Test if the given point is directly over text
-  var isOverText = (function() {
-    var bonet = document.createElement("SPAN")
-    return function(ev) {
+  var isOverText = (function () {
+    var bonet = document.createElement('SPAN')
+    return function (ev) {
       var mommy = ev.target
       if (mommy == null) return false
       for (var i = 0; i < mommy.childNodes.length; i++) {
         var baby = mommy.childNodes[i]
-        if (baby.nodeType == Node.TEXT_NODE && baby.textContent.search(/\S/) != -1) {
+        if (
+          baby.nodeType == Node.TEXT_NODE &&
+          baby.textContent.search(/\S/) != -1
+        ) {
           // debug("TEXT_NODE: '"+baby.textContent+"'")
           try {
-            bonet.appendChild(mommy.replaceChild(bonet,baby))
-            if (bonet.isSameNode(document.elementFromPoint(ev.clientX,ev.clientY))) return true
+            bonet.appendChild(mommy.replaceChild(bonet, baby))
+            if (
+              bonet.isSameNode(
+                document.elementFromPoint(ev.clientX, ev.clientY),
+              )
+            )
+              return true
           } finally {
             if (baby.isSameNode(bonet.firstChild)) bonet.removeChild(baby)
-            if (bonet.isSameNode(mommy.childNodes[i])) mommy.replaceChild(baby,bonet)
+            if (bonet.isSameNode(mommy.childNodes[i]))
+              mommy.replaceChild(baby, bonet)
           }
         }
       }
       return false
     }
   })()
-
 
   /*
   large <html>.clientHeight:
@@ -126,30 +149,36 @@ var ScrollbarAnywhere = (function() {
   // The body element is treated separately since the visible size is
   // fetched differently depending on the doctype.
   function isOverScrollbar(ev) {
-    var t = ev.target == document.documentElement ? document.scrollingElement : ev.target;
+    var t =
+      ev.target == document.documentElement
+        ? document.scrollingElement
+        : ev.target
     if (t == document.scrollingElement) {
-      var d = document.documentElement;
-      var clientWidth;
-      var clientHeight;
-      if (d.scrollHeight == d.clientHeight && d.scrollHeight == d.offsetHeight) {
+      var d = document.documentElement
+      var clientWidth
+      var clientHeight
+      if (
+        d.scrollHeight == d.clientHeight &&
+        d.scrollHeight == d.offsetHeight
+      ) {
         // Guessing it's a no doctype document
-        clientWidth = t.clientWidth;
-        clientHeight = t.clientHeight;
+        clientWidth = t.clientWidth
+        clientHeight = t.clientHeight
+      } else {
+        clientWidth = d.clientWidth
+        clientHeight = d.clientHeight
       }
-      else {
-        clientWidth = d.clientWidth;
-        clientHeight = d.clientHeight;
-      }
-      return (ev.offsetX - t.scrollLeft >= clientWidth ||
-              ev.offsetY - t.scrollTop >= clientHeight);
-    }
-    else if (!isScrollable(t)) {
-      return false;
-    }
-    else
-    {
-      return (ev.offsetX - t.scrollLeft >= t.clientWidth ||
-              ev.offsetY - t.scrollTop >= t.clientHeight);
+      return (
+        ev.offsetX - t.scrollLeft >= clientWidth ||
+        ev.offsetY - t.scrollTop >= clientHeight
+      )
+    } else if (!isScrollable(t)) {
+      return false
+    } else {
+      return (
+        ev.offsetX - t.scrollLeft >= t.clientWidth ||
+        ev.offsetY - t.scrollTop >= t.clientHeight
+      )
     }
   }
 
@@ -159,19 +188,20 @@ var ScrollbarAnywhere = (function() {
   function isScrollable(e) {
     var o
     if (e.scrollWidth > e.clientWidth) {
-      o = document.defaultView.getComputedStyle(e)["overflow-x"]
-      if (o == "auto" || o == "scroll") return true
+      o = document.defaultView.getComputedStyle(e)['overflow-x']
+      if (o == 'auto' || o == 'scroll') return true
     }
     if (e.scrollHeight > e.clientHeight) {
-      o = document.defaultView.getComputedStyle(e)["overflow-y"]
-      if (o == "auto" || o == "scroll") return true
+      o = document.defaultView.getComputedStyle(e)['overflow-y']
+      if (o == 'auto' || o == 'scroll') return true
     }
     return false
   }
 
   // Return the first ancestor (or the element itself) that is scrollable
   function findInnermostScrollable(e) {
-    if (e == document.documentElement || e == document.body) return document.scrollingElement
+    if (e == document.documentElement || e == document.body)
+      return document.scrollingElement
     if (e == null || e == document.scrollingElement || isScrollable(e)) {
       return e
     } else {
@@ -180,34 +210,59 @@ var ScrollbarAnywhere = (function() {
   }
 
   // Don't drag when left-clicking on these elements
-  const LBUTTON_OVERRIDE_TAGS = ['A','INPUT','SELECT','TEXTAREA','BUTTON','LABEL','OBJECT','EMBED']
+  const LBUTTON_OVERRIDE_TAGS = [
+    'A',
+    'INPUT',
+    'SELECT',
+    'TEXTAREA',
+    'BUTTON',
+    'LABEL',
+    'OBJECT',
+    'EMBED',
+  ]
   const MBUTTON_OVERRIDE_TAGS = ['A']
-  const RBUTTON_OVERRIDE_TAGS = ['A','INPUT','TEXTAREA','OBJECT','EMBED']
+  const RBUTTON_OVERRIDE_TAGS = ['A', 'INPUT', 'TEXTAREA', 'OBJECT', 'EMBED']
   function hasOverrideAncestor(e) {
     if (e == null) return false
-    if (options.button == LBUTTON && shouldOverrideLeftButton(e)) return true;
-    if (options.button == MBUTTON && MBUTTON_OVERRIDE_TAGS.some(function(tag) { return tag == e.tagName })) return true
-    if (options.button == RBUTTON && RBUTTON_OVERRIDE_TAGS.some(function(tag) { return tag == e.tagName })) return true
+    if (options.button == LBUTTON && shouldOverrideLeftButton(e)) return true
+    if (
+      options.button == MBUTTON &&
+      MBUTTON_OVERRIDE_TAGS.some(function (tag) {
+        return tag == e.tagName
+      })
+    )
+      return true
+    if (
+      options.button == RBUTTON &&
+      RBUTTON_OVERRIDE_TAGS.some(function (tag) {
+        return tag == e.tagName
+      })
+    )
+      return true
     return arguments.callee(e.parentNode)
   }
 
   function shouldOverrideLeftButton(e) {
-    return LBUTTON_OVERRIDE_TAGS.some(function(tag) { return tag == e.tagName; }) || hasRoleButtonAttribute(e);
+    return (
+      LBUTTON_OVERRIDE_TAGS.some(function (tag) {
+        return tag == e.tagName
+      }) || hasRoleButtonAttribute(e)
+    )
   }
 
   function hasRoleButtonAttribute(e) {
     if (e.attributes && e.attributes.role) {
-      return e.attributes.role.value === 'button';
+      return e.attributes.role.value === 'button'
     }
-    return false;
+    return false
   }
 
   // === Clipboard Stuff ===
-  var Clipboard = (function(){
+  var Clipboard = (function () {
     var blockElement = null
 
     function isPastable(e) {
-      return e && e.tagName == 'INPUT' || e.tagName == 'TEXTAREA'
+      return (e && e.tagName == 'INPUT') || e.tagName == 'TEXTAREA'
     }
 
     // Block the next paste event if a text element is active. This is a
@@ -217,17 +272,17 @@ var ScrollbarAnywhere = (function() {
       if (blockElement != e) {
         if (blockElement) unblockPaste()
         if (isPastable(e)) {
-          debug("blocking paste for active text element", e)
+          debug('blocking paste for active text element', e)
           blockElement = e
-          e.addEventListener('paste',onPaste,true)
+          e.addEventListener('paste', onPaste, true)
         }
       }
     }
 
     function unblockPaste() {
       if (blockElement) {
-        debug("unblocking paste", blockElement)
-        blockElement.removeEventListener('paste',onPaste,true)
+        debug('unblocking paste', blockElement)
+        blockElement.removeEventListener('paste', onPaste, true)
         blockElement = null
       }
     }
@@ -239,87 +294,88 @@ var ScrollbarAnywhere = (function() {
           blockElement = null
           ev.preventDefault()
         }
-        e.removeEventListener('paste',arguments.callee,true)
+        e.removeEventListener('paste', arguments.callee, true)
       }
     }
 
-    return { blockPaste: blockPaste,
-             unblockPaste: unblockPaste }
+    return { blockPaste: blockPaste, unblockPaste: unblockPaste }
   })()
 
   // === Scrollfix hack ===
-  var ScrollFix = (function(){
-    var scrollFixElement = null;
-    var showingScrollFix = false;
+  var ScrollFix = (function () {
+    var scrollFixElement = null
+    var showingScrollFix = false
 
     function createScrollFix() {
-      var element = document.createElement('div');
-      element.setAttribute('style', 'background: transparent none !important');
-      element.style.position = 'fixed';
-      element.style.top=0;
-      element.style.right=0;
-      element.style.bottom=0;
-      element.style.left=0;
-      element.style.zIndex=99999999;
-      element.style.display='block';
+      var element = document.createElement('div')
+      element.setAttribute('style', 'background: transparent none !important')
+      element.style.position = 'fixed'
+      element.style.top = 0
+      element.style.right = 0
+      element.style.bottom = 0
+      element.style.left = 0
+      element.style.zIndex = 99999999
+      element.style.display = 'block'
       //element.style.borderRight='5px solid rgba(0,0,0,0.04)';
-      return element;
+      return element
     }
 
     function show() {
       if (scrollFixElement === null) {
-        scrollFixElement = createScrollFix();
+        scrollFixElement = createScrollFix()
       }
       if (!showingScrollFix) {
-        debug("showing scrollfix")
-        document.body.appendChild(scrollFixElement);
-        showingScrollFix = true;
+        debug('showing scrollfix')
+        document.body.appendChild(scrollFixElement)
+        showingScrollFix = true
       }
     }
 
     function hide() {
-      if (showingScrollFix && scrollFixElement !== null && scrollFixElement.parentNode !== null) {
-        debug("hiding scrollfix")
-        scrollFixElement.parentNode.removeChild(scrollFixElement);
-        showingScrollFix = false;
+      if (
+        showingScrollFix &&
+        scrollFixElement !== null &&
+        scrollFixElement.parentNode !== null
+      ) {
+        debug('hiding scrollfix')
+        scrollFixElement.parentNode.removeChild(scrollFixElement)
+        showingScrollFix = false
       }
     }
 
-    return { show: show,
-             hide: hide }
-  })();
+    return { show: show, hide: hide }
+  })()
 
   // === Fake Selection ===
 
-  var Selector = (function(){
-
+  var Selector = (function () {
     var startRange = null
 
-    function start(x,y) {
-      debug("Selector.start("+x+","+y+")")
-      startRange = document.caretRangeFromPoint(x,y)
+    function start(x, y) {
+      debug('Selector.start(' + x + ',' + y + ')')
+      startRange = document.caretRangeFromPoint(x, y)
       var s = getSelection()
       s.removeAllRanges()
       s.addRange(startRange)
     }
 
-    function update(x,y) {
-      debug("Selector.update("+x+","+y+")")
+    function update(x, y) {
+      debug('Selector.update(' + x + ',' + y + ')')
 
-           if (y < 0) y = 0
-      else if (y >= innerHeight) y = innerHeight-1
-           if (x < 0) x = 0
-      else if (x >= innerWidth) x = innerWidth-1
+      if (y < 0) y = 0
+      else if (y >= innerHeight) y = innerHeight - 1
+      if (x < 0) x = 0
+      else if (x >= innerWidth) x = innerWidth - 1
 
-      if (!startRange) start(x,y)
+      if (!startRange) start(x, y)
       var a = startRange
-      var b = document.caretRangeFromPoint(x,y)
+      var b = document.caretRangeFromPoint(x, y)
 
       if (b != null) {
-        if (b.compareBoundaryPoints(Range.START_TO_START,a) > 0) {
-          b.setStart(a.startContainer,a.startOffset)
+        if (b.compareBoundaryPoints(Range.START_TO_START, a) > 0) {
+          b.setStart(a.startContainer, a.startOffset)
         } else {
-          b.setEnd(a.startContainer,a.startOffset)
+          b.setEnd(a.startContainer, a.startOffset)
         }
 
         var s = getSelection()
@@ -329,7 +385,7 @@ var ScrollbarAnywhere = (function() {
     }
 
     function cancel() {
-      debug("Selector.cancel()")
+      debug('Selector.cancel()')
       startRange = null
       getSelection().removeAllRanges()
     }
@@ -337,29 +393,25 @@ var ScrollbarAnywhere = (function() {
     function scroll(ev) {
       var y = ev.clientY
       if (y < 0) {
-        scrollBy(0,y)
+        scrollBy(0, y)
         return true
       } else if (y >= innerHeight) {
-        scrollBy(0,y-innerHeight)
+        scrollBy(0, y - innerHeight)
         return true
       }
       return false
     }
 
-    return { start: start,
-             update: update,
-             cancel: cancel,
-             scroll: scroll }
+    return { start: start, update: update, cancel: cancel, scroll: scroll }
   })()
-
 
   // === Motion ===
 
-  var Motion = (function() {
+  var Motion = (function () {
     const MIN_SPEED_SQUARED = 1
     const FILTER_INTERVAL = 100
     var position = null
-    var velocity = [0,0]
+    var velocity = [0, 0]
     var updateTime = null
     var impulses = []
 
@@ -368,10 +420,10 @@ var ScrollbarAnywhere = (function() {
     function clamp() {
       var speedSquared = vmag2(velocity)
       if (speedSquared <= MIN_SPEED_SQUARED) {
-        velocity = [0,0]
+        velocity = [0, 0]
         return false
-      } else if (speedSquared > options.speed*options.speed) {
-        velocity = vmul(options.speed,vunit(velocity))
+      } else if (speedSquared > options.speed * options.speed) {
+        velocity = vmul(options.speed, vunit(velocity))
       }
       return true
     }
@@ -379,27 +431,27 @@ var ScrollbarAnywhere = (function() {
     // zero velocity
     function stop() {
       impulses = []
-      velocity = [0,0]
+      velocity = [0, 0]
     }
 
     // impulsively move to given position and time
     // return if/not there is motion
-    function impulse(pos,time) {
+    function impulse(pos, time) {
       position = pos
       updateTime = time
 
-      while (impulses.length > 0 && (time - impulses[0].time) > FILTER_INTERVAL) impulses.shift()
-      impulses.push({pos:pos,time:time})
+      while (impulses.length > 0 && time - impulses[0].time > FILTER_INTERVAL)
+        impulses.shift()
+      impulses.push({ pos: pos, time: time })
 
       if (impulses.length < 2) {
-        velocity = [0,0]
+        velocity = [0, 0]
         return false
       } else {
         var a = impulses[0]
-        var b = impulses[impulses.length-1]
+        var b = impulses[impulses.length - 1]
 
-        velocity = vdiv((b.time - a.time)/1000,
-                        vsub(b.pos,a.pos))
+        velocity = vdiv((b.time - a.time) / 1000, vsub(b.pos, a.pos))
         return clamp()
       }
     }
@@ -413,34 +465,43 @@ var ScrollbarAnywhere = (function() {
       if (updateTime == null) {
         moving = false
       } else {
-        var deltaSeconds = (time-updateTime)/1000;
-        var frictionMultiplier = Math.max(1-(options.friction/FILTER_INTERVAL), 0);
-        frictionMultiplier = Math.pow(frictionMultiplier, deltaSeconds*FILTER_INTERVAL);
-        velocity = vmul(frictionMultiplier, velocity);
+        var deltaSeconds = (time - updateTime) / 1000
+        var frictionMultiplier = Math.max(
+          1 - options.friction / FILTER_INTERVAL,
+          0,
+        )
+        frictionMultiplier = Math.pow(
+          frictionMultiplier,
+          deltaSeconds * FILTER_INTERVAL,
+        )
+        velocity = vmul(frictionMultiplier, velocity)
         moving = clamp()
-        position = vadd(position,vmul(deltaSeconds,velocity))
+        position = vadd(position, vmul(deltaSeconds, velocity))
       }
       updateTime = time
       return moving
     }
 
-    function getPosition() { return position }
+    function getPosition() {
+      return position
+    }
 
-    return { stop: stop,
-             impulse: impulse,
-             glide: glide,
-             getPosition: getPosition }
+    return {
+      stop: stop,
+      impulse: impulse,
+      glide: glide,
+      getPosition: getPosition,
+    }
   })()
 
-
-  var Scroll = (function() {
+  var Scroll = (function () {
     var scrolling = false
     var element
     var scrollOrigin
     var viewportSize
     var scrollSize
     var scrollListener
-    var scrollMultiplier;
+    var scrollMultiplier
 
     // Return the size of the element as it appears in parent's layout
     function getViewportSize(el) {
@@ -459,14 +520,13 @@ var ScrollbarAnywhere = (function() {
       scrollSize = [el.scrollWidth, el.scrollHeight]
       scrollOrigin = [el.scrollLeft, el.scrollTop]
       if (options.grab_and_drag) {
-        scrollMultiplier = [-options.scaling,
-                            -options.scaling];
+        scrollMultiplier = [-options.scaling, -options.scaling]
+      } else {
+        scrollMultiplier = [
+          (scrollSize[0] / viewportSize[0]) * 1.15 * options.scaling,
+          (scrollSize[1] / viewportSize[1]) * 1.15 * options.scaling,
+        ]
       }
-      else {
-        scrollMultiplier = [(scrollSize[0] / viewportSize[0]) * 1.15 * options.scaling,
-                            (scrollSize[1] / viewportSize[1]) * 1.15 * options.scaling];
-      }
-
     }
 
     // Move the currently dragged element relative to the starting position
@@ -479,8 +539,8 @@ var ScrollbarAnywhere = (function() {
         var y = element.scrollTop
         try {
           scrolling = true
-          element.scrollLeft = scrollOrigin[0] + pos[0] * scrollMultiplier[0];
-          element.scrollTop  = scrollOrigin[1] + pos[1] * scrollMultiplier[1];
+          element.scrollLeft = scrollOrigin[0] + pos[0] * scrollMultiplier[0]
+          element.scrollTop = scrollOrigin[1] + pos[1] * scrollMultiplier[1]
         } finally {
           scrolling = false
         }
@@ -502,20 +562,21 @@ var ScrollbarAnywhere = (function() {
       scrollListener = fn
     }
 
-    return { start: start,
-             move: move,
-             stop: stop,
-             listen: listen }
+    return { start: start, move: move, stop: stop, listen: listen }
   })()
 
-
-  const LBUTTON=0, MBUTTON=1, RBUTTON=2
-  const KEYS = ["shift","ctrl","alt","meta"]
-  const KEYS_KEY_CODES = [16,17,18,91,92]
+  const LBUTTON = 0,
+    MBUTTON = 1,
+    RBUTTON = 2
+  const KEYS = ['shift', 'ctrl', 'alt', 'meta']
+  const KEYS_KEY_CODES = [16, 17, 18, 91, 92]
   const TIME_STEP = 10
 
-  const STOP=0, CLICK=1, DRAG=2, GLIDE=3
-  const ACTIVITIES = ["STOP","CLICK","DRAG","GLIDE"]
+  const STOP = 0,
+    CLICK = 1,
+    DRAG = 2,
+    GLIDE = 3
+  const ACTIVITIES = ['STOP', 'CLICK', 'DRAG', 'GLIDE']
   for (var i = 0; i < ACTIVITIES.length; i++) window[ACTIVITIES[i]] = i
 
   var activity = STOP
@@ -525,55 +586,54 @@ var ScrollbarAnywhere = (function() {
 
   function updateGlide() {
     if (activity == GLIDE) {
-      debug("glide update");
-      var moving = Motion.glide(performance.now());
-      moving = Scroll.move(vsub(Motion.getPosition(),mouseOrigin)) && moving;
+      debug('glide update')
+      var moving = Motion.glide(performance.now())
+      moving = Scroll.move(vsub(Motion.getPosition(), mouseOrigin)) && moving
       if (moving) {
-        setTimeout(updateGlide,TIME_STEP);
+        setTimeout(updateGlide, TIME_STEP)
       } else {
-        stopGlide();
+        stopGlide()
       }
     }
   }
 
   function stopGlide() {
-    debug("glide stop")
+    debug('glide stop')
     activity = STOP
     Motion.stop()
     Scroll.stop()
   }
 
   function updateDrag(ev) {
-    debug("drag update")
-    var v = [ev.clientX,ev.clientY]
+    debug('drag update')
+    var v = [ev.clientX, ev.clientY]
     var moving = false
-    if (v[0] && v[1])
-    {
-      moving = Motion.impulse(v,ev.timeStamp)
-      Scroll.move(vsub(v,mouseOrigin))
+    if (v[0] && v[1]) {
+      moving = Motion.impulse(v, ev.timeStamp)
+      Scroll.move(vsub(v, mouseOrigin))
     }
     return moving
   }
 
   function startDrag(ev) {
-    debug("drag start")
+    debug('drag start')
     activity = DRAG
     if (options.cursor) {
-      document.body.style.cursor = "-webkit-grabbing";
-      document.body.style.cursor = "-moz-grabbing";
-      document.body.style.cursor = "grabbing";
+      document.body.style.cursor = '-webkit-grabbing'
+      document.body.style.cursor = '-moz-grabbing'
+      document.body.style.cursor = 'grabbing'
     }
     Scroll.start(dragElement)
     return updateDrag(ev)
   }
 
   function stopDrag(ev) {
-    debug("drag stop")
-    if (options.cursor) document.body.style.cursor = "auto"
+    debug('drag stop')
+    if (options.cursor) document.body.style.cursor = 'auto'
     Clipboard.unblockPaste()
     ScrollFix.hide()
     if (updateDrag(ev)) {
-      window.setTimeout(updateGlide,TIME_STEP)
+      window.setTimeout(updateGlide, TIME_STEP)
       activity = GLIDE
     } else {
       Scroll.stop()
@@ -585,169 +645,186 @@ var ScrollbarAnywhere = (function() {
     blockContextMenu = false
 
     if (!options.enabled) {
-      debug("blacklisted domain, ignoring");
-      return true;
+      debug('blacklisted domain, ignoring')
+      return true
     }
 
     if (!options.browser_enabled) {
-      debug("browserAction is disabled, ignoring")
-      return true;
+      debug('browserAction is disabled, ignoring')
+      return true
     }
 
     switch (activity) {
-
-    case GLIDE:
-      stopGlide(ev)
+      case GLIDE:
+        stopGlide(ev)
       // fall through
 
-    case STOP:
-      if (!ev.target) {
-        debug("target is null, ignoring")
+      case STOP:
+        if (!ev.target) {
+          debug('target is null, ignoring')
+          break
+        }
+
+        if (ev.button != options.button) {
+          debug(
+            'wrong button, ignoring   ev.button=' +
+              ev.button +
+              '   options.button=' +
+              options.button,
+          )
+          break
+        }
+
+        if (
+          !KEYS.every(function (key) {
+            return (options['key_' + key] + '' == 'true') == ev[key + 'Key']
+          })
+        ) {
+          debug('wrong modkeys, ignoring')
+          break
+        }
+
+        if (hasOverrideAncestor(ev.target)) {
+          debug('forbidden target element, ignoring', ev)
+          break
+        }
+
+        if (isOverScrollbar(ev)) {
+          debug('detected scrollbar click, ignoring', ev)
+          break
+        }
+
+        dragElement = findInnermostScrollable(ev.target)
+        if (!dragElement) {
+          debug('no scrollable ancestor found, ignoring', ev)
+          break
+        }
+
+        if (options.notext && isOverText(ev)) {
+          debug('detected text node, ignoring')
+          break
+        }
+
+        debug('click MouseEvent=', ev, ' dragElement=', dragElement)
+        activity = CLICK
+        mouseOrigin = [ev.clientX, ev.clientY]
+        Motion.impulse(mouseOrigin, ev.timeStamp)
+        ev.preventDefault()
+        if (ev.button == MBUTTON && ev.target != document.activeElement)
+          Clipboard.blockPaste()
+        if (
+          ev.button == RBUTTON &&
+          (navigator.platform.match(/Mac/) || navigator.platform.match(/Linux/))
+        ) {
+          blockContextMenu = true
+        }
         break
-      }
 
-      if (ev.button != options.button) {
-        debug("wrong button, ignoring   ev.button="+ev.button+"   options.button="+options.button)
-        break
-      }
-
-      if (!KEYS.every(function(key) { return (options['key_'+key]+'' == 'true') == ev[key+"Key"] })) {
-        debug("wrong modkeys, ignoring")
-        break
-      }
-
-      if (hasOverrideAncestor(ev.target)) {
-        debug("forbidden target element, ignoring",ev)
-        break
-      }
-
-      if (isOverScrollbar(ev)) {
-        debug("detected scrollbar click, ignoring",ev)
-        break
-      }
-
-      dragElement = findInnermostScrollable(ev.target)
-      if (!dragElement) {
-        debug("no scrollable ancestor found, ignoring",ev)
-        break
-      }
-
-      if (options.notext && isOverText(ev)) {
-        debug("detected text node, ignoring")
-        break
-      }
-
-      debug("click MouseEvent=",ev," dragElement=",dragElement)
-      activity = CLICK
-      mouseOrigin = [ev.clientX,ev.clientY]
-      Motion.impulse(mouseOrigin,ev.timeStamp)
-      ev.preventDefault()
-      if (ev.button == MBUTTON &&
-          ev.target != document.activeElement) Clipboard.blockPaste()
-      if (ev.button == RBUTTON &&
-          (navigator.platform.match(/Mac/) || navigator.platform.match(/Linux/))) {
-        blockContextMenu = true;
-      }
-      break
-
-    default:
-      debug("WARNING: illegal activity for mousedown: "+ACTIVITIES[activity]);
-      if (options.cursor) document.body.style.cursor = "auto";
-      Clipboard.unblockPaste();
-      ScrollFix.hide();
-      activity = STOP;
-      return onMouseDown(ev);
+      default:
+        debug(
+          'WARNING: illegal activity for mousedown: ' + ACTIVITIES[activity],
+        )
+        if (options.cursor) document.body.style.cursor = 'auto'
+        Clipboard.unblockPaste()
+        ScrollFix.hide()
+        activity = STOP
+        return onMouseDown(ev)
     }
   }
 
   function onMouseMove(ev) {
     switch (activity) {
+      case STOP:
+        break
 
-    case STOP: break
-
-    case CLICK:
-      if (ev.buttons == buttonToMouseMoveButtons(options.button)) {
-        if (positionsWithinDistance(mouseOrigin, [ev.clientX, ev.clientY], 0)) {
-          debug("ignore, short drag")
-          break
+      case CLICK:
+        if (ev.buttons == buttonToMouseMoveButtons(options.button)) {
+          if (
+            positionsWithinDistance(mouseOrigin, [ev.clientX, ev.clientY], 0)
+          ) {
+            debug('ignore, short drag')
+            break
+          }
+          if (options.button == RBUTTON) blockContextMenu = true
+          ScrollFix.show()
+          startDrag(ev)
+          ev.preventDefault()
         }
-        if (options.button == RBUTTON) blockContextMenu = true
-        ScrollFix.show();
-        startDrag(ev)
-        ev.preventDefault()
-      }
-      break
+        break
 
-    case DRAG:
-      if (ev.buttons == buttonToMouseMoveButtons(options.button)) {
-        updateDrag(ev);
-        ev.preventDefault();
-      }
-      break;
+      case DRAG:
+        if (ev.buttons == buttonToMouseMoveButtons(options.button)) {
+          updateDrag(ev)
+          ev.preventDefault()
+        }
+        break
 
-    case GLIDE: break
+      case GLIDE:
+        break
 
-    default:
-      debug("WARNING: unknown state: "+activity)
-      break
+      default:
+        debug('WARNING: unknown state: ' + activity)
+        break
     }
   }
 
   function onMouseUp(ev) {
     switch (activity) {
+      case STOP:
+        break
 
-    case STOP: break
+      case CLICK:
+        debug('unclick, no drag')
+        Clipboard.unblockPaste()
+        ScrollFix.hide()
+        if (ev.button == 0) getSelection().removeAllRanges()
+        if (document.activeElement) document.activeElement.blur()
+        if (ev.target) ev.target.focus()
+        if (ev.button == options.button) activity = STOP
+        break
 
-    case CLICK:
-      debug("unclick, no drag")
-      Clipboard.unblockPaste()
-      ScrollFix.hide()
-      if (ev.button == 0) getSelection().removeAllRanges()
-      if (document.activeElement) document.activeElement.blur()
-      if (ev.target) ev.target.focus()
-      if (ev.button == options.button) activity = STOP
-      break
+      case DRAG:
+        if (ev.button == options.button) {
+          stopDrag(ev)
+          ev.preventDefault()
+        }
+        break
 
-    case DRAG:
-      if (ev.button == options.button) {
-        stopDrag(ev)
-        ev.preventDefault()
-      }
-      break
+      case GLIDE:
+        stopGlide(ev)
+        break
 
-    case GLIDE:
-      stopGlide(ev)
-      break
-
-    default:
-      debug("WARNING: unknown state: "+activity)
-      break
+      default:
+        debug('WARNING: unknown state: ' + activity)
+        break
     }
   }
 
   function onMouseOut(ev) {
     switch (activity) {
+      case STOP:
+        break
 
-    case STOP: break
+      case CLICK:
+        break
 
-    case CLICK: break
+      case DRAG:
+        if (ev.toElement == null) stopDrag(ev)
+        break
 
-    case DRAG:
-      if (ev.toElement == null) stopDrag(ev)
-      break
+      case GLIDE:
+        break
 
-    case GLIDE: break
-
-    default:
-      debug("WARNING: unknown state: "+activity)
-      break
+      default:
+        debug('WARNING: unknown state: ' + activity)
+        break
     }
   }
 
   function onContextMenu(ev) {
     if (blockContextMenu) {
       blockContextMenu = false
-      debug("blocking context menu")
+      debug('blocking context menu')
       ev.preventDefault()
     }
   }
@@ -759,36 +836,38 @@ var ScrollbarAnywhere = (function() {
 
   function onAbortingAction(ev) {
     switch (activity) {
+      case STOP:
+        break
 
-      case STOP: break
+      case CLICK:
+        break
 
-      case CLICK: break
-
-      case DRAG: break
+      case DRAG:
+        break
 
       case GLIDE:
         if (!KEYS_KEY_CODES.includes(ev.keyCode)) {
-          debug("key pressed or wheel scrolled while gliding")
+          debug('key pressed or wheel scrolled while gliding')
           stopGlide(ev)
         }
         break
 
       default:
-        debug("WARNING: unknown state: "+activity)
+        debug('WARNING: unknown state: ' + activity)
         break
-      }
+    }
   }
 
   return {
-    init: function() {
-      addEventListener("mousedown", onMouseDown, true)
-      addEventListener("mouseup", onMouseUp, true)
-      addEventListener("mousemove", onMouseMove, true)
-      addEventListener("mouseout", onMouseOut, true)
-      addEventListener("contextmenu", onContextMenu, true)
-      addEventListener("keydown", onAbortingAction, true)
-      addEventListener("wheel", onAbortingAction, true)
-    }
+    init: function () {
+      addEventListener('mousedown', onMouseDown, true)
+      addEventListener('mouseup', onMouseUp, true)
+      addEventListener('mousemove', onMouseMove, true)
+      addEventListener('mouseout', onMouseOut, true)
+      addEventListener('contextmenu', onContextMenu, true)
+      addEventListener('keydown', onAbortingAction, true)
+      addEventListener('wheel', onAbortingAction, true)
+    },
   }
 
   function buttonToMouseMoveButtons(button) {
@@ -797,7 +876,6 @@ var ScrollbarAnywhere = (function() {
     if (button == RBUTTON) return 2
     return 0
   }
-
 })()
 
 ScrollbarAnywhere.init()
