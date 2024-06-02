@@ -17,7 +17,8 @@
     }
   ],
   "background": {
-    "scripts": ["background.js"]
+    "service_worker": "background.js",
+    "type": "module"
   },
   "browser_action": {
     "default_title": "Click to toggle Scrollbar Anywhere"
