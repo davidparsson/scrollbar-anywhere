@@ -47,13 +47,13 @@ function saveOptions(o) {
   }
 }
 
-chrome.browserAction.onClicked.addListener(function (tab) {
+chrome.action.onClicked.addListener(function (tab) {
   if (localStorage['browser_enabled'] == 'true') {
     localStorage['browser_enabled'] = 'false'
-    chrome.browserAction.setIcon({ path: 'icon16dis.png' })
+    chrome.action.setIcon({ path: 'icon16dis.png' })
   } else {
     localStorage['browser_enabled'] = 'true'
-    chrome.browserAction.setIcon({ path: 'icon16.png' })
+    chrome.action.setIcon({ path: 'icon16.png' })
   }
   saveOptions({ o: 'browser_enabled' })
 })
