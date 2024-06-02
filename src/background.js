@@ -1,4 +1,4 @@
-defaultOptions = {
+var defaultOptions = {
   button: 2,
   key_shift: false,
   key_ctrl: false,
@@ -24,7 +24,7 @@ function loadOptions() {
   return o
 }
 
-clients = {}
+var clients = {}
 
 chrome.extension.onConnect.addListener(function (port) {
   port.postMessage({ saveOptions: localStorage })
