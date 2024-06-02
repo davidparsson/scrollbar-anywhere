@@ -17,8 +17,18 @@ var defaultOptions = {
 
 const localStorage = chrome.storage
 
-for (var k in defaultOptions)
-  if (typeof localStorage[k] == 'undefined') localStorage[k] = defaultOptions[k]
+self.addEventListener('install', (event) => {
+  console.log('Service Worker installing.')
+  // TODO: Trigger offscreen conversion of window.localStorage to chrome.storage
+  for (var k in defaultOptions)
+    if (typeof localStorage[k] == 'undefined')
+      localStorage[k] = defaultOptions[k]
+})
+
+self.addEventListener('activate', (event) => {
+  console.log('Service Worker activating.')
+  event.waitUntil(self.clients.claim())
+})
 
 function loadOptions() {
   var o = {}
