@@ -4,6 +4,7 @@
     "grunt": "^0.4.5",
     "grunt-contrib-clean": "^0.7.0",
     "grunt-zip": "^0.16.2",
-    "jit-grunt": "^0.9.1"
+    "jit-grunt": "^0.9.1",
+    "prettier": "^3.3.0"
   }
 }

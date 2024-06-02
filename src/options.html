@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <title>Scrollbar Anywhere</title>
@@ -19,9 +19,13 @@
         height: 24pt;
       }
 
-      h2 { margin: 0 }
+      h2 {
+        margin: 0;
+      }
 
-      div.backtotop { margin: 400px auto 0; }
+      div.backtotop {
+        margin: 400px auto 0;
+      }
 
       .centered {
         margin: auto;
@@ -43,25 +47,27 @@
       }
 
       a:visited {
-      	color: blue;
+        color: blue;
       }
     </style>
 
     <script src="content.js" type="text/javascript"></script>
     <script src="options.js" type="text/javascript"></script>
-
   </head>
   <body>
     <div class="centered-text">
       <a id="top"></a>
-      <table id="settings" class="centered" style="border: none; border-spacing: 16px;">
-
+      <table
+        id="settings"
+        class="centered"
+        style="border: none; border-spacing: 16px"
+      >
         <tr>
           <td class="setting_description">
             <h2>Button</h2>
             Which button will you hold down to drag?
           </td>
-          <td style="width:300px">
+          <td style="width: 300px">
             <select id="button">
               <option>Left</option>
               <option>Middle</option>
@@ -69,46 +75,67 @@
             </select>
 
             <div id="windows_middle_warning" class="tip" style="display: none">
-                WARNING: The middle button may not work on Windows due to a
-                <a href="http://code.google.com/p/chromium/issues/detail?id=17234">bug</a>
-                in the browser, which will be fixed in Chrome 5.
+              WARNING: The middle button may not work on Windows due to a
+              <a href="http://code.google.com/p/chromium/issues/detail?id=17234"
+                >bug</a
+              >
+              in the browser, which will be fixed in Chrome 5.
             </div>
-
           </td>
         </tr>
 
         <tr>
           <td class="setting_description">
-           <h2>Keys</h2>
-           Which extra keys will you hold down?
+            <h2>Keys</h2>
+            Which extra keys will you hold down?
           </td>
           <td>
             <table style="border: none">
-            <tr>
-              <td style="width:100px">
-                  <input id="key_shift" type="checkbox" /> <label for="key_shift">Shift</label></td>
-              <td><input id="key_ctrl"  type="checkbox" /> <label for="key_ctrl">Ctrl</label></td>
-            </tr>
-            <tr>
-              <td><input id="key_alt"   type="checkbox" /> <label for="key_alt">Alt</label></td>
-              <td><input id="key_meta"  type="checkbox" /> <label for="key_meta">Meta/Win/Tux</label></td>
-            </tr>
+              <tr>
+                <td style="width: 100px">
+                  <input id="key_shift" type="checkbox" />
+                  <label for="key_shift">Shift</label>
+                </td>
+                <td>
+                  <input id="key_ctrl" type="checkbox" />
+                  <label for="key_ctrl">Ctrl</label>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <input id="key_alt" type="checkbox" />
+                  <label for="key_alt">Alt</label>
+                </td>
+                <td>
+                  <input id="key_meta" type="checkbox" />
+                  <label for="key_meta">Meta/Win/Tux</label>
+                </td>
+              </tr>
             </table>
-            <div class="tip">Tip: any unchecked keys will <strong>disable</strong> dragging when held down</div>
+            <div class="tip">
+              Tip: any unchecked keys will <strong>disable</strong> dragging
+              when held down
+            </div>
           </td>
         </tr>
 
         <tr>
           <td></td>
           <td>
-            <label for="notext"><input id="notext" type="checkbox"/> Don't drag when clicking on text</label><br/>
+            <label for="notext"
+              ><input id="notext" type="checkbox" /> Don't drag when clicking on
+              text</label
+            ><br />
           </td>
         </tr>
 
         <tr>
           <td></td>
           <td>
-            <label for="cursor"><input id="cursor" type="checkbox"/> Change cursor while dragging</label><br/>
+            <label for="cursor"
+              ><input id="cursor" type="checkbox" /> Change cursor while
+              dragging</label
+            ><br />
             <div class="tip">Try unchecking this if you notice any delays</div>
           </td>
         </tr>
@@ -116,31 +143,38 @@
         <tr>
           <td class="setting_description">
             <h2>Grab and drag</h2>
-            Grab-and-drag style scrolling will be enabled instead of the scrollbar anywhere style.
+            Grab-and-drag style scrolling will be enabled instead of the
+            scrollbar anywhere style.
           </td>
           <td>
-            <label for="grab_and_drag"><input id="grab_and_drag" type="checkbox"/> Use Grab-and-drag style scrolling</label><br/>
+            <label for="grab_and_drag"
+              ><input id="grab_and_drag" type="checkbox" /> Use Grab-and-drag
+              style scrolling</label
+            ><br />
           </td>
         </tr>
 
         <tr>
           <td class="setting_description">
             <h2>Scaling</h2>
-            Mouse motion will be magnified by this factor. A negative number will invert scrolling. 100 is default.
+            Mouse motion will be magnified by this factor. A negative number
+            will invert scrolling. 100 is default.
           </td>
           <td>
-            <input id="scaling" type="text" style="width:60px" /> <sub>% of original scroll speed</sub>
+            <input id="scaling" type="text" style="width: 60px" />
+            <sub>% of original scroll speed</sub>
           </td>
         </tr>
-
 
         <tr>
           <td class="setting_description">
             <h2>Top Speed</h2>
-            The maximum speed at which the page will glide after you release it. Enter 0 to disable gliding.
+            The maximum speed at which the page will glide after you release it.
+            Enter 0 to disable gliding.
           </td>
           <td>
-            <input id="speed" type="text" style="width:60px" /> <sub>pixels per second</sub>
+            <input id="speed" type="text" style="width: 60px" />
+            <sub>pixels per second</sub>
           </td>
         </tr>
 
@@ -150,14 +184,16 @@
             How quickly the page will come to a stop when gliding.
           </td>
           <td>
-            <input id="friction" type="text" style="width:60px" /> <sub>velocities per second</sub>
+            <input id="friction" type="text" style="width: 60px" />
+            <sub>velocities per second</sub>
           </td>
         </tr>
 
         <tr>
           <td class="setting_description">
             <h2>Blacklist</h2>
-            Disable this extension on the configured domains and all of their subdomains.
+            Disable this extension on the configured domains and all of their
+            subdomains.
           </td>
           <td>
             <textarea id="blacklist" rows="5" cols="30"></textarea><br />
@@ -167,39 +203,101 @@
 
         <tr>
           <td></td>
-          <td><input id="debug" type="checkbox" /> <label for="debug">show debug noise in console</label></td>
+          <td>
+            <input id="debug" type="checkbox" />
+            <label for="debug">show debug noise in console</label>
+          </td>
         </tr>
 
         <tr>
           <td colspan="2" id="message" class="centered-text"></td>
         </tr>
-
       </table>
 
       <p>
         Scrollbar Anywhere by David P&auml;rsson -
         <a href="http://github.com/davidparsson/scrollbar-anywhere">Code</a> -
-        <a href="http://github.com/davidparsson/scrollbar-anywhere/issues">Support</a>
-        <br/> Based on <a href="https://chrome.google.com/extensions/detail/ljecomdaijmibecakcpjadigpfkollbh">Wet Banana</a> by Jedediah Smith
-        <br/> Inspired by <a href="http://pagesperso-orange.fr/marc.boullet/ext/extensions-en.html">Scrollbar Anywhere</a> for Firefox by Marc Boullet
+        <a href="http://github.com/davidparsson/scrollbar-anywhere/issues"
+          >Support</a
+        >
+        <br />
+        Based on
+        <a
+          href="https://chrome.google.com/extensions/detail/ljecomdaijmibecakcpjadigpfkollbh"
+          >Wet Banana</a
+        >
+        by Jedediah Smith <br />
+        Inspired by
+        <a
+          href="http://pagesperso-orange.fr/marc.boullet/ext/extensions-en.html"
+          >Scrollbar Anywhere</a
+        >
+        for Firefox by Marc Boullet
       </p>
 
-      <i>Test your settings by dragging this page</i><br/>
-      <img src="down.png" alt="Down arrow" style="margin: 0 auto;"/>
+      <i>Test your settings by dragging this page</i><br />
+      <img src="down.png" alt="Down arrow" style="margin: 0 auto" />
 
-
-      <div class="backtotop"><a href="#"><img src="up.png" alt="Up arrow"/><br/><br/>Back to the Top</a></div>
-      <div class="backtotop"><a href="#"><img src="up.png" alt="Up arrow"/><br/><br/>Back to the Top</a></div>
-      <div class="backtotop"><a href="#"><img src="up.png" alt="Up arrow"/><br/><br/>Back to the Top</a></div>
-      <div class="backtotop"><a href="#"><img src="up.png" alt="Up arrow"/><br/><br/>Back to the Top</a></div>
-      <div class="backtotop"><a href="#"><img src="up.png" alt="Up arrow"/><br/><br/>Back to the Top</a></div>
-      <div class="backtotop"><a href="#"><img src="up.png" alt="Up arrow"/><br/><br/>Back to the Top</a></div>
-      <div class="backtotop"><a href="#"><img src="up.png" alt="Up arrow"/><br/><br/>Back to the Top</a></div>
-      <div class="backtotop"><a href="#"><img src="up.png" alt="Up arrow"/><br/><br/>Back to the Top</a></div>
-      <div class="backtotop"><a href="#"><img src="up.png" alt="Up arrow"/><br/><br/>Back to the Top</a></div>
-      <div class="backtotop"><a href="#"><img src="up.png" alt="Up arrow"/><br/><br/>Back to the Top</a></div>
-      <div class="backtotop"><a href="#"><img src="up.png" alt="Up arrow"/><br/><br/>Back to the Top</a></div>
-      <div class="backtotop"><a href="#"><img src="up.png" alt="Up arrow"/><br/><br/>Back to the Top</a></div>
+      <div class="backtotop">
+        <a href="#"
+          ><img src="up.png" alt="Up arrow" /><br /><br />Back to the Top</a
+        >
+      </div>
+      <div class="backtotop">
+        <a href="#"
+          ><img src="up.png" alt="Up arrow" /><br /><br />Back to the Top</a
+        >
+      </div>
+      <div class="backtotop">
+        <a href="#"
+          ><img src="up.png" alt="Up arrow" /><br /><br />Back to the Top</a
+        >
+      </div>
+      <div class="backtotop">
+        <a href="#"
+          ><img src="up.png" alt="Up arrow" /><br /><br />Back to the Top</a
+        >
+      </div>
+      <div class="backtotop">
+        <a href="#"
+          ><img src="up.png" alt="Up arrow" /><br /><br />Back to the Top</a
+        >
+      </div>
+      <div class="backtotop">
+        <a href="#"
+          ><img src="up.png" alt="Up arrow" /><br /><br />Back to the Top</a
+        >
+      </div>
+      <div class="backtotop">
+        <a href="#"
+          ><img src="up.png" alt="Up arrow" /><br /><br />Back to the Top</a
+        >
+      </div>
+      <div class="backtotop">
+        <a href="#"
+          ><img src="up.png" alt="Up arrow" /><br /><br />Back to the Top</a
+        >
+      </div>
+      <div class="backtotop">
+        <a href="#"
+          ><img src="up.png" alt="Up arrow" /><br /><br />Back to the Top</a
+        >
+      </div>
+      <div class="backtotop">
+        <a href="#"
+          ><img src="up.png" alt="Up arrow" /><br /><br />Back to the Top</a
+        >
+      </div>
+      <div class="backtotop">
+        <a href="#"
+          ><img src="up.png" alt="Up arrow" /><br /><br />Back to the Top</a
+        >
+      </div>
+      <div class="backtotop">
+        <a href="#"
+          ><img src="up.png" alt="Up arrow" /><br /><br />Back to the Top</a
+        >
+      </div>
     </div>
   </body>
 </html>
