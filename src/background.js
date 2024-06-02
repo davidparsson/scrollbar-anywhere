@@ -15,6 +15,8 @@ var defaultOptions = {
   browser_enabled: true,
 }
 
+const localStorage = chrome.storage
+
 for (var k in defaultOptions)
   if (typeof localStorage[k] == 'undefined') localStorage[k] = defaultOptions[k]
 

@@ -23,7 +23,7 @@
   "action": {
     "default_title": "Click to toggle Scrollbar Anywhere"
   },
-
+  "permissions": ["storage"],
   "options_page": "options.html",
   "manifest_version": 3,
   "minimum_chrome_version": "49"
