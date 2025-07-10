@@ -11,7 +11,7 @@ const defaultOptions = {
   notext: false,
   grab_and_drag: false,
   debug: false,
-  blacklist: '',
+  blocklist: '',
   browser_enabled: true,
 }
 
@@ -52,6 +52,12 @@ async function getOptionsFromLocalStorage() {
 
 function sanitizeOptions(loadedOptions) {
   const sanitizedOptions = {}
+  
+  // Handle migration from blacklist to blocklist
+  if (loadedOptions.blacklist && !loadedOptions.blocklist) {
+    loadedOptions.blocklist = loadedOptions.blacklist
+  }
+  
   for (var key in defaultOptions) {
     if (typeof loadedOptions[key] == 'undefined') {
       sanitizedOptions[key] = defaultOptions[key]

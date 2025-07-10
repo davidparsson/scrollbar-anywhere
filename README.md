@@ -27,7 +27,7 @@ The extension is based on the [Wet Banana extension](https://github.com/jedediah
 
 ### 2.15
 
-- Fix a bug where having an empty blacklist would disable the extension for `file:///` URLs.
+- Fix a bug where having an empty blocklist would disable the extension for `file:///` URLs.
 
 ### 2.14
 
@@ -43,7 +43,7 @@ The extension is based on the [Wet Banana extension](https://github.com/jedediah
 
 ### 2.11
 
-- Add a blacklist, allowing users to disable scrolling on certain domains.
+- Add a blocklist, allowing users to disable scrolling on certain domains.
 - Fixed a bug where settings in open multi-frame tabs were not updated.
 
 ### 2.10

@@ -9,7 +9,7 @@ var ScrollbarAnywhere = (function () {
     options.notext = isTrue(options.notext)
     options.grab_and_drag = isTrue(options.grab_and_drag)
     options.debug = isTrue(options.debug)
-    options.enabled = isEnabled(options.blacklist)
+    options.enabled = isEnabled(options.blocklist)
     options.browser_enabled = isTrue(options.browser_enabled)
     debug('Loaded options: ', options)
   }
@@ -36,17 +36,17 @@ var ScrollbarAnywhere = (function () {
     return value == true || value == 'true'
   }
 
-  function isEnabled(blacklist) {
-    if (!blacklist) {
+  function isEnabled(blocklist) {
+    if (!blocklist) {
       return true
     }
-    var blacklistedHosts = blacklist.split('\n')
+    var blocklistedHosts = blocklist.split('\n')
     var hostname = document.location.hostname
-    for (var i = blacklistedHosts.length - 1; i >= 0; i--) {
-      var blacklistedHost = blacklistedHosts[i].trim()
+    for (var i = blocklistedHosts.length - 1; i >= 0; i--) {
+      var blocklistedHost = blocklistedHosts[i].trim()
       if (
-        hostname === blacklistedHost ||
-        hostname.endsWith('.' + blacklistedHost)
+        hostname === blocklistedHost ||
+        hostname.endsWith('.' + blocklistedHost)
       ) {
         return false
       }
@@ -664,7 +664,7 @@ var ScrollbarAnywhere = (function () {
     blockContextMenu = false
 
     if (!options.enabled) {
-      debug('blacklisted domain, ignoring')
+      debug('blocklisted domain, ignoring')
       return true
     }
 

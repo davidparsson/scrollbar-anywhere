@@ -16,7 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     notext: boolean,
     grab_and_drag: boolean,
     debug: boolean,
-    blacklist: string,
+    blacklist: string, // Legacy key for backward compatibility
+    blocklist: string,
     browser_enabled: boolean,
   }
 
@@ -35,6 +36,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
     })
+    
+    // Handle migration from blacklist to blocklist
+    if (options.blacklist && !options.blocklist) {
+      options.blocklist = options.blacklist
+    }
+    
     return options
   }
 
