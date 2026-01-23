@@ -120,31 +120,74 @@ var ScrollbarAnywhere = (function () {
     return vdiv(vmag(v), v)
   }
 
+  var isOverTextNew = function(event) {
+    let element = event.target;
+    let x = event.clientX;
+    let y = event.clientY;
+
+    const nodes = element.childNodes;
+    for (let i = 0, node; (node = nodes[i++]); ) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const range = document.createRange();
+        range.selectNode(node);
+        const rects = range.getClientRects();
+
+        for (let j = 0, rect; (rect = rects[j++]); ) {
+          let left = rect.left
+          let right = rect.right
+          let top = rect.top
+          let bottom = rect.bottom
+
+          console.log(`x=${x}, y=${y}, left=${left}, top=${top}, right=${right}, bottom=${bottom}`);
+          if (
+            x > left &&
+            x < right &&
+            y > top &&
+            y < bottom
+          ) {
+            if (node.nodeType === Node.TEXT_NODE) {
+              // console.log(`hit text`)
+              // createBound(left, right, top, bottom)
+              return true;
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+
   // Test if the given point is directly over text
   var isOverText = (function () {
     var bonet = document.createElement('SPAN')
     return function (ev) {
       var mommy = ev.target
-      if (mommy == null) return false
+      if (mommy == null) {
+        return false
+      }
+
       for (var i = 0; i < mommy.childNodes.length; i++) {
         var baby = mommy.childNodes[i]
-        if (
-          baby.nodeType == Node.TEXT_NODE &&
-          baby.textContent.search(/\S/) != -1
-        ) {
-          // debug("TEXT_NODE: '"+baby.textContent+"'")
-          try {
-            bonet.appendChild(mommy.replaceChild(bonet, baby))
-            if (
-              bonet.isSameNode(
-                document.elementFromPoint(ev.clientX, ev.clientY),
-              )
-            )
-              return true
-          } finally {
-            if (baby.isSameNode(bonet.firstChild)) bonet.removeChild(baby)
-            if (bonet.isSameNode(mommy.childNodes[i]))
-              mommy.replaceChild(baby, bonet)
+        let isValidNode = baby.nodeType === Node.TEXT_NODE && baby.textContent.search(/\S/) !== -1
+        if (!isValidNode) {
+          continue;
+        }
+
+        // debug("TEXT_NODE: '"+baby.textContent+"'")
+        try {
+          bonet.appendChild(mommy.replaceChild(bonet, baby))
+          let pointElement = document.elementFromPoint(ev.clientX, ev.clientY)
+          let isSameNode = bonet.isSameNode(pointElement)
+          if (isSameNode) {
+            return true
+          }
+        } finally {
+          if (baby.isSameNode(bonet.firstChild)) {
+            bonet.removeChild(baby)
+          }
+
+          if (bonet.isSameNode(mommy.childNodes[i])) {
+            mommy.replaceChild(baby, bonet)
           }
         }
       }
@@ -687,9 +730,9 @@ var ScrollbarAnywhere = (function () {
         if (ev.button != options.button) {
           debug(
             'wrong button, ignoring   ev.button=' +
-              ev.button +
-              '   options.button=' +
-              options.button,
+            ev.button +
+            '   options.button=' +
+            options.button,
           )
           break
         }
@@ -719,7 +762,7 @@ var ScrollbarAnywhere = (function () {
           break
         }
 
-        if (options.notext && isOverText(ev)) {
+        if (options.notext && isOverTextNew(ev)) {
           debug('detected text node, ignoring')
           break
         }
